@@ -192,10 +192,11 @@ void LoadBackgroundLine(PPU *ppu, int8_t *memory) {
 * Takes 2 bytes representing 8 pixels of 1 line and returns the colour of the pixel nth as value in [0,3]
 */
 int8_t combineColourBytes(int8_t lineByteA, int8_t lineByteB, int n) {
-	int8_t lhs = (lineByteB & (0b10000000 >> n)) >> (6 - n);
-	int8_t rhs = (lineByteA & (0b10000000 >> n) >> (7 - n));
-
-	int8_t colour = (rhs | lhs) & 0b11;
+	int8_t lhs = (lineByteB & (0b10000000 >> n)) >> (7 - n);
+	int8_t rhs = (lineByteA & (0b10000000 >> n)) >> (7 - n);
+	
+	lhs = lhs << 1;
+	int8_t colour = (lhs | rhs) & 0b11;
 
 	return colour;
 }
