@@ -20,7 +20,7 @@ int8_t *CreateNewMemory() {
 }
 
 int8_t readByte(CPU cpu, int8_t *mem, uint16_t address) {
-    if (address >= 0xFE00 && address <= 0xFE9F) { // If the address is in OAM ram
+    /*if (address >= 0xFE00 && address <= 0xFE9F) { // If the address is in OAM ram
         if (*cpu.ppuState == HBLANK || *cpu.ppuState == VBLANK) {
             return mem[address];
         }
@@ -30,9 +30,9 @@ int8_t readByte(CPU cpu, int8_t *mem, uint16_t address) {
         }
     }
 
-    return 0xFF;
+    return 0xFF;*/
 
-    //return mem[address];
+    return mem[address];
 }
 
 void writeByte(CPU cpu, int8_t *mem, uint16_t address, int8_t content) {
