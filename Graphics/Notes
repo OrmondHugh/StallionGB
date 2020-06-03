@@ -1,0 +1,88 @@
+
+Registers:
+    FF40: LCDC - LCD Control
+     bit 7: LCD Enable
+     bit 6: Window tile map address
+     bit 5: Window enable
+     bit 4: BG & window tile data
+     bit 3: BG tile map address
+     bit 2: OBJ size
+     bit 1: OBJ enable
+     bit 0: BG enable
+    FF41: STAT - LCDC Status
+     bit 6: LY interrupt
+     bit 5: Mode 2 OAM Interrupt
+     bit 4: Mode 1 V-Blank Interrupt
+     bit 3: Mode 0 H-BLank Interrupt
+     bit 2: LY Flag
+     bit 1- 0: Mode
+    FF42: SCY - Scroll y
+    FF43: SCX - Scroll x
+    FF44: LY - LCDC Y Coord (R only)
+    FF45: LYC - LY Compare
+    FF46: DMA - DMA Transfer and Start (No R/W) (?)
+    FF47: BGP - BG Palette
+     bit 0-1: Colour for 00 (Initially white)
+     ...
+     bit 6-7: Colour for 11 (Initially black)
+    FF48: OBP0 - Obj Palette 0
+    FF49: OBP1 - Obj Palette 1
+    FF4A: WY - Window Y pos
+    FF4B: WX - Window X pos (minus 7) (?)
+
+OBJ = Sprite
+
+Gameboy Original Palette (green version):
+    Darkest: #0f380f
+    Dark: #306230
+    Light: #8bac0f
+    Lightest: #9bbc0f
+    Off: ~= #8f7A2F
+
+Original res: 160*144, displaying 20*18 tiles of size 8*8
+                        32 * 32 Tiles are in VRAM, scrollx and scroll y determine which are displayed
+
+40 sprites can be in the system, up to 10 displayed per line
+11th sprite in the program does not render, not 11th from left
+
+Sprite Entry: X&Y pos, Tile num, priority, flip x+y, palette
+ Tile num is the number of the sprite in the memory
+
+Sprite entries are stored at FE00 .. FE9C (OAM RAM) and are 4 bytes each
+ First 2 bytes are X and Y pos, 3rd is Tile num, last is flags
+ Flags:
+    Bit 7: Priority
+    Bit 6: Y Flip
+    Bit 5: X Flip
+    Bit 4: Palette Number (1 value takes from palette 0 and vice versa)
+
+ X and Y correspond to the coordinates of the bottom right of the sprite
+
+Tiles in memory are stored 2 bytes per line
+First byte is least significant bit of each pixel, second is the upper bits.
+
+Per Line:
+    20 Clocks of OAM search then
+    43 Clocks of Pixel Transfer then
+    51 Clocks of H-Blanks
+    Giving 144 Clocks per line for 144 lines
+    Followed by 10 "lines" of 114 clocks for V-Blank
+
+OAM read makes an array of the <=10 sprites which are visible on the line, based on
+the formula oam.x != 0 && LY + 16 >= oam.y && LY + 16 < oam.y + h
+
+VRAM cannot be accessed during Pixel Transfer, but can the rest of the time
+OAM RAM cannot be accessed during OAM Search and Pixel Transfer, but can during H-Blank and V-Blank
+
+OAM RAM is FE00 to FE9F
+VRAM is 8000 to 9FFF
+
+To implement real world timing have a small "catch up" sleep during vblank after the screen in drawn
+Screen refreshes every 17556 clocks, 1048576 is the total per second
+So a formula may be sleep to sleep for (17556/1048576) - (newTime - oldTime) seconds
+                                        = 0.01674 - time since last refresh
+With this method relative timing can be enforced between CPU and PPU, but they rush to render
+a full screen, draw it and then rest. The screen won't be drawn one line at a time like a real game boy,
+but will be processed as such.
+
+This will have a small impact on the window but shouldn't be noticed
