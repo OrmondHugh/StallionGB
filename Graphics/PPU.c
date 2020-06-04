@@ -38,7 +38,7 @@ PPU CreateNewPPU(int8_t *memory, int8_t screenArray[144][160]) {
 }
 
 void PerformPPUOperation(PPU *ppu, CPU *cpu, int8_t *memory, SDL_Renderer *ren, int8_t currentScreen[144][160]) {
-    UpdatePPUState(ppu);
+    UpdatePPUState(ppu, memory);
     switch(ppu->state) {
         case OAMREAD:
             // Read sprites which should be on the line
@@ -67,7 +67,7 @@ void PerformPPUOperation(PPU *ppu, CPU *cpu, int8_t *memory, SDL_Renderer *ren, 
  * Changes the state of the PPU to the next in line
  */
  // TODO update and mode flag
-void UpdatePPUState(PPU *ppu) {
+void UpdatePPUState(PPU *ppu, int8_t *memory) {
     if (ppu->state != VBLANK && *ppu->lcdcY >= 144) {
         ppu->state = VBLANK;
     } else {
@@ -113,8 +113,8 @@ void ConvertBackgroundPalette(PPU *ppu) {
                 ppu->currentScreen[*ppu->lcdcY][i] = shade3;
                 break;
             default:
+				printf("Error decoding palette values");
                 exit(1);
-
         }
     }
 }

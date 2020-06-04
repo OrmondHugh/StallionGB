@@ -26,7 +26,7 @@ void combineColourBytesTest() {
 	resultB = malloc(8);
 	resultC = malloc(8);
 
-	for (int i = 7; i > 0; i--) {
+	for (int i = 7; i >= 0; i--) {
 		resultA[i] = combineColourBytes(testByteA1, testByteA2, i);
 		resultB[i] = combineColourBytes(testByteB1, testByteB2, i);
 		resultC[i] = combineColourBytes(testByteC1, testByteC2, i);

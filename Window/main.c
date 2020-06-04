@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	#ifdef RUN_TESTS
 		runTests();
 		return 0;
-	#endif // RUN_TESTS
+	#endif 
 
 	// Initialisation of SDL and data structures
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
     PPU ppu = CreateNewPPU(memory, currentScreen);
     CPU cpu = CreateNewCPU(ppu);
     RomInfo *romInfo;
-    FILE *fpRomFile = OpenRom(FILE_PATH, &memory[0x100], &romInfo);
+    FILE *fpRomFile = OpenRom(FILE_PATH, memory, &romInfo);
+
 
 	// Struct storing values representing whether each key (A, Up, Start ect.) is being pressed
 	KeysPressed keysPressed = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -46,6 +47,8 @@ int main(int argc, char *argv[]) {
             currentScreen[i][j] = 0; 
         }
     }
+
+	//int a = 0;	//*****************************
 
 	int oldTime = SDL_GetTicks();
 	while (1) {
@@ -57,6 +60,7 @@ int main(int argc, char *argv[]) {
 		readKeyboard(&keysPressed);
 		updateInput(keysPressed, memory);
 
+
 		// Main processor loop, after window messages are dealt with
 		if (cpu.state == ACTIVE) {
 			int8_t currentInstruction = memory[cpu.pc];
@@ -64,6 +68,16 @@ int main(int argc, char *argv[]) {
 			//printf("$90: %d $FF44: %d\n", memory[0x90], memory[0xFF44]);
 			//printf("a: %d b: %d c: %d d: %d pc: %x\n", cpu.a, cpu.b, cpu.c, cpu.d, cpu.pc);
 			//printf("%x, pc: %x\n", memory[cpu.pc], cpu.pc);
+			//printf("lcdcY: %x\n", memory[0xFF44]);
+
+			/*if (cpu.pc == 0x100)
+				a = 1;
+
+			if (a) {
+				printf("PC: %x A: %d B: %d C: %d D: %d E: %d H: %d L: %d\n", cpu.pc, cpu.a, cpu.b, cpu.c, cpu.d, cpu.e, cpu.h, cpu.l);
+				SDL_Delay(50);
+			}*/
+
 			//printf("PC: %d\n", cpu.pc);
 			/*for (int i = 0; i < 144; i++) {
 				for (int j = 0; j < 160; j++) {
@@ -77,7 +91,6 @@ int main(int argc, char *argv[]) {
 				ppu.instructionClocks = 0;
 
 				DecodeOpcode(&cpu, memory, currentInstruction);
-
 				PerformPPUOperation(&ppu, &cpu, memory, ren, currentScreen);
 			} else if (cpu.instructionClocks < ppu.instructionClocks) {
 				ppu.instructionClocks -= cpu.instructionClocks;

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "MemoryDefines.h"
 
-FILE *OpenRom(const char *location, int8_t *romMemoryLocation, RomInfo **info) {
+FILE *OpenRom(const char *location, int8_t *memory, RomInfo **info) {
 	FILE *p = NULL;
 	fopen_s(&p, "C:\\Users\\Hugh\\Documents\\GB Roms\\Tetris.gb", "r");
 
@@ -42,7 +42,15 @@ FILE *OpenRom(const char *location, int8_t *romMemoryLocation, RomInfo **info) {
         fileSize = 0xFFFF9C;
     }
 
-    fread(romMemoryLocation, 1, fileSize, p);
+	void *romBuffer = malloc(fileSize);
+	size_t size = fread(romBuffer, 1, fileSize, p);
+
+	for (int i = 0; i < size; i++) {
+		memory[i + 100] = ((int8_t *) romBuffer)[i];
+	}
+
+    //fread(romMemoryLocation, 1, fileSize, p);
+
 
     return p;
 }
