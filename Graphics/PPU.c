@@ -39,6 +39,7 @@ PPU CreateNewPPU(int8_t *memory, int8_t screenArray[144][160]) {
 
 void PerformPPUOperation(PPU *ppu, CPU *cpu, int8_t *memory, SDL_Renderer *ren, int8_t currentScreen[144][160]) {
     UpdatePPUState(ppu, memory);
+
     switch(ppu->state) {
         case OAMREAD:
             // Read sprites which should be on the line
@@ -109,7 +110,7 @@ void ConvertBackgroundPalette(PPU *ppu) {
             case(2):
                 ppu->currentScreen[*ppu->lcdcY][i] = shade2;
                 break;
-            case(3):
+            case(3):				
                 ppu->currentScreen[*ppu->lcdcY][i] = shade3;
                 break;
             default:
